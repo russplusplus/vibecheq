@@ -27,6 +27,7 @@ export const UserContextProvider = (props: any) => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session)
             setUser(session?.user ?? null)
+            console.log('event:', event)
 
             if (event === 'INITIAL_SESSION') {
                 console.log('initial session')

@@ -13,3 +13,11 @@ export const Styles = {
   colorPrimary: 'black',
   spacing: 12,
 }
+
+export const Colors = {
+  orange: '#f58b44',
+  cream: '#fdf5eb',
+  black: '#4b5161',
+  blue: '#52b6de',
+  red: '#f06e1d'
+}
