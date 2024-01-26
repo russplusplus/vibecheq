@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, StyleSheet, View, TouchableOpacity, Text } from 'react-native'
+import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform } from 'react-native'
+import { Image } from 'expo-image'
 import { Styles, Colors } from '../lib/constants'
 import { supabase } from '../lib/supabase'
 
 import { Button, Input } from 'react-native-elements'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 
-import { useFonts } from 'expo-font';
-
 export default function Auth() {
   const [phone, setPhone] = useState<string>('')
   const [selectedCountry, setSelectedCountry] = useState<null | ICountry>(null);
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [fontsLoaded] = useFonts({
-    'Rubik-Regular': require('../assets/fonts/Rubik-Regular.ttf'),
-  });
 
   async function sendOtp() {
     setLoading(true)
@@ -48,7 +44,11 @@ export default function Auth() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.verticallySpaced, { marginTop: 20 }]}>
+      <Image
+        source={require('../assets/images/title.png')}
+        style={styles.title}
+      />
+      <View style={[{ marginTop: 20 }]}>
         {/* <Input
           label="Phone Number"
           leftIcon={{ type: 'font-awesome', name: 'phone' }}
@@ -82,14 +82,14 @@ export default function Auth() {
         <TouchableOpacity
           onPress={() => sendOtp()}
         >
-          <Text style={{fontFamily: 'Rubik-Regular', fontSize: Styles.fontMedium}}>Send OTP</Text>
+          <Text style={{fontFamily: 'Rubik-Regular', fontSize: Styles.fontNormal}}>Send OTP</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.button}>
         <TouchableOpacity
           onPress={() => verifyOtp()}
         >
-          <Text style={{fontFamily: 'Rubik-Regular', fontSize: Styles.fontMedium}}>Verify OTP</Text>
+          <Text style={{fontFamily: 'Rubik-Regular', fontSize: Styles.fontNormal}}>Verify OTP</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -98,22 +98,26 @@ export default function Auth() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: Styles.spacing,
+    flex: 1,
     backgroundColor: Colors.black,
-    paddingHorizontal: 4,
-    width: 300,
+    width: '100%',
     alignSelf: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    marginTop: 200,
+    width: '100%', 
+    height: 100
   },
   input: {
-
+    width: 300
   },
   button: {
     marginVertical: 10,
     paddingVertical: 4,
     paddingHorizontal: 4,
-    width: 300,
-    backgroundColor: Colors.cream,
+    width: 250,
+    backgroundColor: Colors.white,
     alignItems: 'center',
     fontSize: Styles.fontLarge
   }

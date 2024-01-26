@@ -7,6 +7,9 @@ import Camera from './components/Camera'
 import Auth from './components/Auth'
 import { Styles, Colors } from './lib/constants'
 
+
+
+
 const theme = {
   colors: {
     ...Platform.select({
@@ -38,7 +41,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.black,
+    // backgroundColor: Colors.black,
     alignItems: 'center',
     justifyContent: 'center',
   },
