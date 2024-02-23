@@ -23,16 +23,18 @@
         "backgroundColor": "#ffffff"
       }
     },
+    "androidStatusBar": {
+      "backgroundColor": "black",
+      "translucent": "false"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
-        "expo-font",
+        "expo-camera",
         {
-          "fonts": [
-            "./assets/fonts/Rubik-Regular.ttf"
-          ]
+          "cameraPermission": "Allow Vibecheq to use your camera."
         }
       ]
     ]

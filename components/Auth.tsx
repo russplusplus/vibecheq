@@ -1,30 +1,39 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform } from 'react-native'
+import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform, TextInput, ActivityIndicator } from 'react-native'
 import { Image } from 'expo-image'
 import { Styles, Colors } from '../lib/constants'
 import { supabase } from '../lib/supabase'
 
-import { Button, Input } from 'react-native-elements'
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 
 export default function Auth() {
   const [phone, setPhone] = useState<string>('')
   const [selectedCountry, setSelectedCountry] = useState<null | ICountry>(null);
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [password, setPassword] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [passcodeSent, setPasscodeSent] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
 
   async function sendOtp() {
     setLoading(true)
+    console.log('in sendOtp. phone:', selectedCountry?.callingCode + ' ' + phone)
     const { data, error } = await supabase.auth.signInWithOtp({
       phone: selectedCountry?.callingCode + phone,
     })
     if (error) {
-      Alert.alert(error.message)
+      if (error.message?.includes('Invalid phone number') || error.message?.includes("Invalid 'To' Phone Number")) {
+        setError('Please enter a valid phone number')
+      } else {
+        setError('An error occurred')
+      }
+      setLoading(false)
       console.log(error.message)
       return
     }
+    setPasscodeSent(true)
     console.log('data:', data)
     setLoading(false)
+    setError('')
   }
 
   async function verifyOtp() {
@@ -34,13 +43,14 @@ export default function Auth() {
       token: password,
       type: 'sms'
     })
-
     setLoading(false)
+    setError('')
   }
 
   useEffect(() => {
-    console.log('selectedCountry:', selectedCountry)
-  }, [selectedCountry])
+    console.log('rendered Auth')
+  })
+
 
   return (
     <View style={styles.container}>
@@ -48,52 +58,116 @@ export default function Auth() {
         source={require('../assets/images/title.png')}
         style={styles.title}
       />
-      <View style={[{ marginTop: 20 }]}>
-        {/* <Input
-          label="Phone Number"
-          leftIcon={{ type: 'font-awesome', name: 'phone' }}
-          onChangeText={(text) => setPhone(text)}
-          value={email}
-          placeholder="email@address.com"
-          autoCapitalize={'none'}
-        /> */}
-        <PhoneInput
-          style={styles.input}
-          onChangePhoneNumber={(value: string) => setPhone(value)}
-          value={phone}
-          selectedCountry={selectedCountry}
-          onChangeSelectedCountry={(value: ICountry) => setSelectedCountry(value)}
-          defaultCountry='US'
-        />
-        
-      </View>
-      <View style={styles.input}>
-        <Input
-          label="Password"
-          leftIcon={{ type: 'font-awesome', name: 'lock' }}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          autoCapitalize={'none'}
-        />
-      </View>
-      <View style={[styles.button, { marginTop: 20 }]}>
-        <TouchableOpacity
-          onPress={() => sendOtp()}
-        >
-          <Text style={{fontFamily: 'Rubik-Regular', fontSize: Styles.fontNormal}}>Send OTP</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.button}>
-        <TouchableOpacity
-          onPress={() => verifyOtp()}
-        >
-          <Text style={{fontFamily: 'Rubik-Regular', fontSize: Styles.fontNormal}}>Verify OTP</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={{ color: Colors.orange, fontSize: Styles.fontNormal, marginBottom: 4 }}>{error}</Text>
+      {passcodeSent ?
+        <>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              onChangeText={(text) => setPassword(text)}
+              value={password}
+              secureTextEntry={true}
+              placeholder="passcode"
+              autoCapitalize='none'
+              keyboardType="numeric"
+            />
+          </View>
+          <View >
+            <TouchableOpacity
+              onPress={() => verifyOtp()}
+              style={styles.button}
+            >
+              {loading
+              ? <ActivityIndicator size="large" color='black' /> 
+              : <Text style={{ fontSize: Styles.fontNormal }}>verify passcode</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        </>
+        :
+        <>
+          <View style={styles.inputContainer}>
+            <PhoneInput
+              phoneInputStyles={phoneInputStyles}
+              modalStyles={modalStyles}
+              onChangePhoneNumber={(value: string) => setPhone(value)}
+              value={phone}
+              selectedCountry={selectedCountry}
+              onChangeSelectedCountry={(value: ICountry) => setSelectedCountry(value)}
+              defaultCountry='US'
+              placeholder='phone number'
+            />
+          </View>
+          <View >
+            <TouchableOpacity
+              onPress={() => sendOtp()}
+              style={styles.button}
+            >
+              {loading 
+              ? <ActivityIndicator size="large" color='black' /> 
+              : <Text style={{ fontSize: Styles.fontNormal }}>Send passcode</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        </>
+      }
     </View>
   )
+}
+
+const modalStyles = {
+  modal: {
+    backgroundColor: Colors.black
+  },
+  searchInput: {
+    color: 'black',
+    fontSize: Styles.fontNormal,
+  },
+  countryButton: {
+    backgroundColor: Colors.white,
+    borderWidth: 0
+  },
+  callingCode: {
+    color: 'black',
+    fontSize: Styles.fontNormal,
+    marginHorizontal: 0,
+  },
+  countryName: {
+    color: 'black',
+    fontSize: Styles.fontNormal,
+  }
+}
+
+const phoneInputStyles = {
+  container: {
+    backgroundColor: Colors.white,
+    borderWidth: 0,
+    borderColor: '#F3F3F3',
+    fontColor: 'black',
+    height: 45,
+  },
+  flagContainer: {
+    backgroundColor: Colors.white,
+    paddingHorizontal: 10,
+  },
+  flag: {
+  },
+  caret: {
+    color: 'black',
+    fontSize: Styles.fontNormal,
+  },
+  divider: {
+    backgroundColor: 'black',
+  },
+  callingCode: {
+    fontSize: Styles.fontNormal,
+    color: 'black',
+    fontWeight: 'normal',
+  },
+  input: {
+    fontSize: Styles.fontNormal,
+    paddingHorizontal: 0,
+  },
 }
 
 const styles = StyleSheet.create({
@@ -106,19 +180,37 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 200,
-    width: '100%', 
+    marginBottom: 6,
+    width: '100%',
     height: 100
   },
+  inputLabel: { 
+    color: Colors.white, 
+    fontSize: Styles.fontNormal,
+    marginBottom: 0
+  },
+  inputContainer: {
+    width: 300,
+  },
   input: {
-    width: 300
+    backgroundColor: Colors.white,
+    paddingVertical: 0,
+    paddingHorizontal: 12,
+    height: 45,
+    fontSize: Styles.fontNormal,
+    borderRadius: 8,
   },
   button: {
-    marginVertical: 10,
+    marginVertical: 20,
     paddingVertical: 4,
     paddingHorizontal: 4,
     width: 250,
+    height: 38,
     backgroundColor: Colors.white,
     alignItems: 'center',
-    fontSize: Styles.fontLarge
+    fontSize: Styles.fontLarge,
+    borderRadius: 8,
+    flexDirection: 'column',
+    justifyContent: 'center'
   }
 })

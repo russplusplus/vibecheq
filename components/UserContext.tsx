@@ -2,7 +2,7 @@ import React, { useEffect, useState, createContext, useContext } from 'react'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 
-export const UserContext = createContext<{ user: User | null; session: Session | null }>({
+const UserContext = createContext<{ user: User | null; session: Session | null }>({
     user: null,
     session: null,
 })
@@ -21,7 +21,6 @@ export const UserContextProvider = (props: any) => {
     }
 
     useEffect(() => { 
-        // TODO: move all this code into async function init() 
         init()
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
