@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.39.2",
     "@types/react": "~18.2.14",
     "expo": "^50.0.3",
+    "expo-camera": "^14.0.3",
     "expo-font": "^11.10.2",
     "expo-image": "^1.10.5",
     "expo-status-bar": "~1.11.1",
@@ -21,11 +22,11 @@
     "react-native": "^0.73.2",
     "react-native-international-phone-number": "^0.7.6",
     "react-native-url-polyfill": "^2.0.0",
-    "typescript": "^5.1.3",
-    "expo-camera": "~14.0.3"
+    "typescript": "^5.1.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "supabase": "^1.145.4"
   },
   "private": true
 }

@@ -20,6 +20,12 @@ export default function CameraPage({
   const [logoutMode, setLogoutMode] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const cameraRef = useRef<Camera>(null)
+
+  const [permission, requestPermission] = Camera.useCameraPermissions();
+
+  // if (permission?.status !== 'granted') {
+  //   requestPermission()
+  // }
   
 
   function toggleCameraType() {
@@ -60,6 +66,7 @@ export default function CameraPage({
         style={styles.camera}
         type={type}
         ref={cameraRef}
+        onMountError={(err) => console.log('onMountError:', err)}
       >
         <View
           style={styles.topButtons}
@@ -132,7 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 114,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   bottomTopButtons: {
     flex: 0.5,
@@ -173,6 +180,6 @@ const styles = StyleSheet.create({
   },
   inboxText: {
     fontSize: Styles.fontLarge,
-    color: Colors.black
+    color: "black"
   }
 })

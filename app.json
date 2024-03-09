@@ -34,7 +34,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Vibecheq to use your camera."
+          "cameraPermission": "Allow Vibecheq to use your camera"
         }
       ]
     ]
