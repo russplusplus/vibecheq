@@ -13,7 +13,7 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
 }
 
-console.log(`Function "select-from-table-with-auth-rls" up and running!`)
+console.log(`Function "handle-photo" up and running!`)
 
 serve(async (req: Request) => {
   // This is needed if you're planning to invoke your function from a browser.
