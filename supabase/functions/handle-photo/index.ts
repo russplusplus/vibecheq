@@ -16,19 +16,25 @@ const corsHeaders = {
 console.log(`Function "handle-photo" up and running!`)
 
 serve(async (req: Request) => {
+  console.log('in handle-photo. req:', req)
+
   // This is needed if you're planning to invoke your function from a browser.
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  // if (req.method === 'OPTIONS') {
+  //   return new Response('ok', { headers: corsHeaders })
+  // }
 
   try {
     // Set the Auth context of the user that called the function.
     // This way your row-level-security (RLS) policies are applied.
     SupabaseClient.auth.setAuth(req.headers.get('Authorization')!.replace('Bearer ', ''))
 
-    // const { data, error } = await supabaseClient.from('users').select('*')
-    // console.log({ data, error })
-    console.log('in handle-photo. req:', req)
+    const { data, error } = await SupabaseClient.storage.from('photos').
+
+    // insert photo into photos table
+    const { data, error } = await SupabaseClient.database.from('photos').insert({ name: 'photo' })
+
+
+    // send push notification to recipient
 
     return new Response(JSON.stringify({ data, error }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

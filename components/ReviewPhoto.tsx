@@ -33,7 +33,7 @@ async function uploadPhoto(uri: string) {
     })
 }
 
-function hanldePhotoUpload(imageName: string) {
+function handlePhotoUpload(imageName: string) { 
     console.log('in handlePhotoUpload')
     return new Promise(async (resolve, reject) => {
         const { data, error } = await supabase.functions.invoke('handle-photo', {
@@ -65,12 +65,12 @@ export default function ReviewPhoto({
     async function sendPhoto() {
         setLoading(true)
         console.log('sending photo')
-        
+
         // "as StorageData" is a type assertion
         const storageData = await uploadPhoto(imageUri) as StorageData
         console.log('storageData:', storageData)
-        await hanldePhotoUpload(storageData.path)
-        
+        await handlePhotoUpload(storageData.fullPath)
+
         setLoading(false)
         setPage('CameraPage')
     }
@@ -86,8 +86,8 @@ export default function ReviewPhoto({
                     <FontAwesome6 name="xmark" size={34} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => sendPhoto()} style={styles.sendButton}>
-                    {loading 
-                        ? <ActivityIndicator size={'large'} color="black"/>
+                    {loading
+                        ? <ActivityIndicator size={'large'} color="black" />
                         : <MaterialCommunityIcons name="send" size={34} color="black" />
                     }
                 </TouchableOpacity>
