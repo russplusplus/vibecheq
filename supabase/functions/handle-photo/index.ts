@@ -17,6 +17,7 @@ console.log(`Function "handle-photo" up and running!`)
 
 serve(async (req: Request) => {
   console.log('in handle-photo. req:', req)
+  const { imagePath } = req.body
 
   // This is needed if you're planning to invoke your function from a browser.
   // if (req.method === 'OPTIONS') {
@@ -28,7 +29,7 @@ serve(async (req: Request) => {
     // This way your row-level-security (RLS) policies are applied.
     SupabaseClient.auth.setAuth(req.headers.get('Authorization')!.replace('Bearer ', ''))
 
-    const { data, error } = await SupabaseClient.storage.from('photos').
+    const { data, error } = await SupabaseClient.storage.from('photos').download(imagePath)
 
     // insert photo into photos table
     const { data, error } = await SupabaseClient.database.from('photos').insert({ name: 'photo' })

@@ -33,7 +33,7 @@ async function uploadPhoto(uri: string) {
     })
 }
 
-function handlePhotoUpload(imageName: string) { 
+function handlePhotoUpload(imagePath: string) { 
     console.log('in handlePhotoUpload')
     return new Promise(async (resolve, reject) => {
         const { data, error } = await supabase.functions.invoke('handle-photo', {
@@ -43,7 +43,7 @@ function handlePhotoUpload(imageName: string) {
                 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
                 // 'Content-Type': null
             },
-            body: imageName
+            body: imagePath
         })
 
         if (error) {
