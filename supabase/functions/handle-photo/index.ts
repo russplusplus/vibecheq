@@ -10,14 +10,24 @@ import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE'
 }
 
 console.log(`Function "handle-photo" up and running!`)
 
-serve(async (req: Request) => {
-  console.log('in handle-photo. req:', req)
-  const { imagePath } = req.body
+serve(async (req) => {
+  const reader = req.body.getReader()
+  console.log('in handle-photo. reader:', reader)
+  reader.read().then(function processText({ done, value }) {
+    if (done) {
+      console.log('Stream complete')
+      console.log('value:', value)
+      return
+    }
+
+  })
+
+
 
   // This is needed if you're planning to invoke your function from a browser.
   // if (req.method === 'OPTIONS') {
@@ -29,15 +39,15 @@ serve(async (req: Request) => {
     // This way your row-level-security (RLS) policies are applied.
     SupabaseClient.auth.setAuth(req.headers.get('Authorization')!.replace('Bearer ', ''))
 
-    const { data, error } = await SupabaseClient.storage.from('photos').download(imagePath)
+    // const { data, error } = await SupabaseClient.storage.from('photos').download(imagePath)
 
-    // insert photo into photos table
-    const { data, error } = await SupabaseClient.database.from('photos').insert({ name: 'photo' })
+    // // insert photo into photos table
+    // const { data, error } = await SupabaseClient.database.from('photos').insert({ name: 'photo' })
 
 
     // send push notification to recipient
 
-    return new Response(JSON.stringify({ data, error }), {
+    return new Response(JSON.stringify({}), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })

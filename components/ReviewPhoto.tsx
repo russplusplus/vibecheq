@@ -34,16 +34,17 @@ async function uploadPhoto(uri: string) {
 }
 
 function handlePhotoUpload(imagePath: string) { 
-    console.log('in handlePhotoUpload')
+    console.log('in handlePhotoUpload. imagePath:', imagePath)
     return new Promise(async (resolve, reject) => {
-        const { data, error } = await supabase.functions.invoke('handle-photo', {
-            headers: {
-                'Accept': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-                // 'Content-Type': null
-            },
-            body: imagePath
+        const { data, error } = await supabase.functions.invoke('read-storage', {
+            // These headers don't appear to be necessary. When all were included, the function could not read the body.
+            // headers: {
+            //     'Accept': 'application/json',
+            //     'Access-Control-Allow-Origin': '*',
+            //     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+            //     'Content-Type': 'application/json'
+            // },
+            body: {imagePath: imagePath}
         })
 
         if (error) {
@@ -69,7 +70,7 @@ export default function ReviewPhoto({
         // "as StorageData" is a type assertion
         const storageData = await uploadPhoto(imageUri) as StorageData
         console.log('storageData:', storageData)
-        await handlePhotoUpload(storageData.fullPath)
+        await handlePhotoUpload(storageData.path)
 
         setLoading(false)
         setPage('CameraPage')
