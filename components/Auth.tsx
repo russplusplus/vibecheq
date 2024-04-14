@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform, TextInput, ActivityIndicator } from 'react-native'
 import { Image } from 'expo-image'
 import { Styles, Colors } from '../lib/constants'
-import { supabase } from '../lib/supabase'
 
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
+import auth from '@react-native-firebase/auth';
 
 export default function Auth() {
-  const [phone, setPhone] = useState<string>('')
+  const [phoneNumber, setPhoneNumber] = useState<string>('')
   const [selectedCountry, setSelectedCountry] = useState<null | ICountry>(null);
   const [password, setPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -16,33 +16,38 @@ export default function Auth() {
 
   async function sendOtp() {
     setLoading(true)
-    console.log('in sendOtp. phone:', selectedCountry?.callingCode + ' ' + phone)
-    const { data, error } = await supabase.auth.signInWithOtp({
-      phone: selectedCountry?.callingCode + phone,
-    })
-    if (error) {
-      if (error.message?.includes('Invalid phone number') || error.message?.includes("Invalid 'To' Phone Number")) {
-        setError('Please enter a valid phone number')
-      } else {
-        setError('An error occurred')
-      }
-      setLoading(false)
-      console.log(error.message)
-      return
-    }
+    const fullPhoneNumber = selectedCountry?.callingCode + ' ' + phoneNumber
+    console.log('in sendOtp. fullPhoneNumber:', fullPhoneNumber)
+
+    // const { data, error } = await supabase.auth.signInWithOtp({
+    //   phone: selectedCountry?.callingCode + phone,
+    // })
+    // if (error) {
+    //   if (error.message?.includes('Invalid phone number') || error.message?.includes("Invalid 'To' Phone Number")) {
+    //     setError('Please enter a valid phone number')
+    //   } else {
+    //     setError('An error occurred')
+    //   }
+    //   setLoading(false)
+    //   console.log(error.message)
+    //   return
+    // }
+
+    const confirmation = await auth().signInWithPhoneNumber(fullPhoneNumber);
+    console.log('confirmation:', confirmation)
+
     setPasscodeSent(true)
-    console.log('data:', data)
     setLoading(false)
     setError('')
   }
 
   async function verifyOtp() {
     setLoading(true)
-    const { data: { session }, error } = await supabase.auth.verifyOtp({
-      phone: selectedCountry?.callingCode + phone,
-      token: password,
-      type: 'sms'
-    })
+    // const { data: { session }, error } = await supabase.auth.verifyOtp({
+    //   phone: selectedCountry?.callingCode + phone,
+    //   token: password,
+    //   type: 'sms'
+    // })
     setLoading(false)
     setError('')
   }
@@ -50,7 +55,6 @@ export default function Auth() {
   useEffect(() => {
     console.log('rendered Auth')
   })
-
 
   return (
     <View style={styles.container}>
@@ -90,8 +94,8 @@ export default function Auth() {
             <PhoneInput
               phoneInputStyles={phoneInputStyles}
               modalStyles={modalStyles}
-              onChangePhoneNumber={(value: string) => setPhone(value)}
-              value={phone}
+              onChangePhoneNumber={(value: string) => setPhoneNumber(value)}
+              value={phoneNumber}
               selectedCountry={selectedCountry}
               onChangeSelectedCountry={(value: ICountry) => setSelectedCountry(value)}
               defaultCountry='US'
