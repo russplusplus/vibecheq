@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform, TextInput } from 'react-native'
 import { Styles, Colors } from '../lib/constants'
-import { supabase } from '../lib/supabase'
+// import { supabase } from '../lib/supabase'
 import { Camera, CameraType } from 'expo-camera';
 
 import { Ionicons } from '@expo/vector-icons';

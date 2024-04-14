@@ -1,6 +1,6 @@
 // import React, { useEffect } from 'react'
 import { Modal, View, TouchableOpacity, Text, Alert, StyleSheet } from 'react-native'
-import { supabase } from '../lib/supabase'
+// import { supabase } from '../lib/supabase'
 import { Styles, Colors } from '../lib/constants'
 
 
@@ -9,11 +9,11 @@ export default function Logout({
     setLogoutMode
 }) {
     async function signOut() {
-        const { error } = await supabase.auth.signOut()
-        if (error) {
-            Alert.alert(error.message)
-            return
-        }
+        // const { error } = await supabase.auth.signOut()
+        // if (error) {
+        //     Alert.alert(error.message)
+        //     return
+        // }
     }
 
     // useEffect(() => {

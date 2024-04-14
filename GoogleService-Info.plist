@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>973891374140-apiem68piiqfg1onlm5vo0e11sjb4js8.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.973891374140-apiem68piiqfg1onlm5vo0e11sjb4js8</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>973891374140-p5cvclro2jrstnmp3dcun0rcgq6c2a29.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCdIf3NNNaGcLy2mF-3sn8v9Z1eaUV1WPU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>973891374140</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.Vibecheque</string>
+	<key>PROJECT_ID</key>
+	<string>vibecheque-543ff</string>
+	<key>STORAGE_BUCKET</key>
+	<string>vibecheque-543ff.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:973891374140:ios:ecc29b28fce27d3550c739</string>
+	<key>DATABASE_URL</key>
+	<string>https://vibecheque-543ff.firebaseio.com</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>AntDesign.ttf</string>
+		<string>Entypo.ttf</string>
+		<string>EvilIcons.ttf</string>
+		<string>Feather.ttf</string>
+		<string>Gorditas-Regular.ttf</string>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
+		<string>Foundation.ttf</string>
+		<string>Ionicons.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
+		<string>SimpleLineIcons.ttf</string>
+		<string>Octicons.ttf</string>
+		<string>Zocial.ttf</string>
+	</array>
+</dict>
+</plist>
