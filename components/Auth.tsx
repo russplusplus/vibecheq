@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform, TextInput, ActivityIndicator } from 'react-native'
 import { Image } from 'expo-image'
 import { Styles, Colors } from '../lib/constants'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 import auth from '@react-native-firebase/auth';
+import { useUser } from './UserContext'
 
 export default function Auth() {
   const [phoneNumber, setPhoneNumber] = useState<string>('')
@@ -13,6 +15,9 @@ export default function Auth() {
   const [loading, setLoading] = useState<boolean>(false)
   const [passcodeSent, setPasscodeSent] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
+  const [confirm, setConfirm] = useState<any>(null)
+
+  const { user, setUser } = useUser()
 
   async function sendOtp() {
     setLoading(true)
@@ -35,7 +40,7 @@ export default function Auth() {
 
     const confirmation = await auth().signInWithPhoneNumber(fullPhoneNumber);
     console.log('confirmation:', confirmation)
-
+    setConfirm(confirmation)
     setPasscodeSent(true)
     setLoading(false)
     setError('')
@@ -48,6 +53,16 @@ export default function Auth() {
     //   token: password,
     //   type: 'sms'
     // })
+
+    const user = await confirm.confirm(password)
+    const uid = user.user.uid
+    console.log('code is valid! user:', user)
+    //updateRegistrationToken(uid)
+    setUser(user)
+
+
+    await AsyncStorage.setItem("user", JSON.stringify(user))
+
     setLoading(false)
     setError('')
   }

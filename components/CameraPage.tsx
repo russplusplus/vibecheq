@@ -11,6 +11,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Logout from './Logout'
 import LoadingModal from './LoadingModal'
 
+import { useUser } from './UserContext'
+
 export default function CameraPage({
   setPage,
   setImageUri
@@ -23,6 +25,9 @@ export default function CameraPage({
 
   const [permission, requestPermission] = Camera.useCameraPermissions();
 
+  const { user } = useUser()
+
+  console.log('in CameraPage. user:', user)
   // if (permission?.status !== 'granted') {
   //   requestPermission()
   // }

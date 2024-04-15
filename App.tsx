@@ -1,26 +1,25 @@
 import React from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Platform } from 'react-native';
-// import { UserContextProvider, useUser } from './components/UserContext'
+import { UserContextProvider, useUser } from './components/UserContext'
 import PageRouter from './components/PageRouter'
 import Auth from './components/Auth'
 import { Styles, Colors } from './lib/constants'
 
 const Container = () => {
-  // const { user } = useUser()
-  // console.log('user:', user)
-  let user
+  const { user } = useUser()
+  console.log('in App.tsx. user:', user)
   return user ? <PageRouter /> : <Auth />
 }
 
 export default function App() {
   return (
-    // <UserContextProvider>
+    <UserContextProvider>
         <View style={styles.container}>
           <Container />
           <StatusBar style="auto" />
         </View>
-    // </UserContextProvider>
+    </UserContextProvider>
   );
 }
 
