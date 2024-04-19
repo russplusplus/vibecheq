@@ -4,88 +4,68 @@ import { Styles, Colors } from '../lib/constants'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
 // import { supabase } from '../lib/supabase'
+import storage from '@react-native-firebase/storage';
 
-interface StorageData {
-    fullPath: string,
-    id: string,
-    path: string
-}
+import { useContainerContext } from './ContainerContext'
 
-async function uploadPhoto(uri: string) {
+async function uploadPhoto(uri: string, userUid: string, recipient: string) {
     return new Promise(async (resolve, reject) => {
         console.log('in uploadPhoto')
         const arrayBuffer = await fetch(uri).then((res) => res.arrayBuffer())
-        const imageName = Date.now().toString() + '.jpg'
-        console.log('imageName:', imageName)
-        // const { data, error: uploadError } = await supabase.storage
-        //     .from('photos')
-        //     .upload(imageName, arrayBuffer, {
-        //         contentType: 'image/jpeg',
-        //     })
 
-        // if (uploadError) {
-        //     console.log('storage uploadError:', uploadError)
-        //     reject(uploadError)
-        // }
-
-        // console.log('storage upload data:', data)
-        // resolve(data)
+        try {
+            let filename = new Date().getTime();
+            console.log('userUid:', userUid)
+            console.log('filename:', filename)
+            const refName = 'images/' + String(filename)
+            console.log('refName:', refName)
+            const ref = storage().ref(refName);
+            console.log('ref:', ref)
+            const metadata = {
+                customMetadata: {
+                    fromUid: userUid,
+                    toUid: recipient,
+                    didTheyFavorite: 'false'
+                }
+            }
+            console.log('uri:', uri)
+            const res = await ref.putFile(uri, metadata);
+            resolve(res)
+        } catch (error) {
+            console.log('error:', error)
+            reject(error)
+        }
     })
 }
 
-function handlePhotoUpload(imagePath: string) { 
-    console.log('in handlePhotoUpload. imagePath:', imagePath)
-    return new Promise(async (resolve, reject) => {
-        // const { data, error } = await supabase.functions.invoke('handle-photo', {
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Access-Control-Allow-Origin': '*',
-        //         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-        //         // 'Content-Type': null
-        //     },
-        //     body: imageName
-        // })
-
-        // if (error) {
-        //     console.log('handle-photo error:', error)
-        //     reject(error)
-        // }
-
-        // console.log('handle-photo data:', data)
-        // resolve(data)
-    })
-}
-
-export default function ReviewPhoto({
-    setPage,
-    imageUri
-}) {
+export default function ReviewPhoto(): React.JSX.Element {
     const [loading, setLoading] = useState<boolean>(false)
+    const { user, setUser, capturedImageUri, setPage } = useContainerContext()
 
     async function sendPhoto() {
         setLoading(true)
         console.log('sending photo')
-
+        let recipient = null
         // "as StorageData" is a type assertion
-        const storageData = await uploadPhoto(imageUri) as StorageData
+        const storageData = await uploadPhoto(capturedImageUri, user.user.uid, recipient)
         console.log('storageData:', storageData)
-        await handlePhotoUpload(storageData.path)
+        // await handlePhotoUpload(storageData.path)
 
         setLoading(false)
         setPage('CameraPage')
     }
 
-    useEffect(() => {
+    useEffect((): void => {
         console.log('rendered ReviewPhoto')
     })
 
     return (
-        <ImageBackground source={{ uri: imageUri }} style={styles.background}>
+        <ImageBackground source={{ uri: capturedImageUri }} style={styles.background}>
             <View style={styles.bottomButtons}>
                 <TouchableOpacity style={styles.cancelButton} onPress={() => setPage('CameraPage')}>
                     <FontAwesome6 name="xmark" size={34} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => sendPhoto()} style={styles.sendButton}>
+                <TouchableOpacity onPress={sendPhoto} style={styles.sendButton}>
                     {loading
                         ? <ActivityIndicator size={'large'} color="black" />
                         : <MaterialCommunityIcons name="send" size={34} color="black" />

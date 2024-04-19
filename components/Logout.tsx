@@ -2,23 +2,20 @@
 import { Modal, View, TouchableOpacity, Text, Alert, StyleSheet } from 'react-native'
 // import { supabase } from '../lib/supabase'
 import { Styles, Colors } from '../lib/constants'
+import { useUser } from './ContainerContext'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
 export default function Logout({
     logoutMode,
     setLogoutMode
 }) {
-    async function signOut() {
-        // const { error } = await supabase.auth.signOut()
-        // if (error) {
-        //     Alert.alert(error.message)
-        //     return
-        // }
-    }
+    const { user, setUser } = useUser()
 
-    // useEffect(() => {
-    //     console.log('rendered Logout')
-    // })
+    async function signOut() {
+        await AsyncStorage.removeItem('user')
+        setUser(null)
+    }
 
     return (
         <Modal

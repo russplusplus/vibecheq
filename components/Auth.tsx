@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 import auth from '@react-native-firebase/auth';
-import { useUser } from './UserContext'
+import { useUser } from './ContainerContext'
 
 export default function Auth() {
   const [phoneNumber, setPhoneNumber] = useState<string>('')
@@ -55,12 +55,10 @@ export default function Auth() {
     // })
 
     const user = await confirm.confirm(password)
-    const uid = user.user.uid
+    const { uid } = user.user
     console.log('code is valid! user:', user)
     //updateRegistrationToken(uid)
     setUser(user)
-
-
     await AsyncStorage.setItem("user", JSON.stringify(user))
 
     setLoading(false)
@@ -85,7 +83,6 @@ export default function Auth() {
               style={styles.input}
               onChangeText={(text) => setPassword(text)}
               value={password}
-              secureTextEntry={true}
               placeholder="passcode"
               autoCapitalize='none'
               keyboardType="numeric"

@@ -3,37 +3,28 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Platform } from 'react-native';
 import CameraPage from './CameraPage';
 import ReviewPhoto from './ReviewPhoto';
+import ViewInbox from './ViewInbox';
+import { useContainerContext } from './ContainerContext';
 
 export default function PageRouter() {
-    const [page, setPage] = useState<String | null>('CameraPage')
-    const [imageUri, setImageUri] = useState<String | null>(null)
-
-    // useEffect(() => {
-    //     console.log('rendered PageRouter')
-    // })
-    
+    const { page, setPage, capturedImageUri, setCapturedImageUri } = useContainerContext()
 
     switch (page) {
         case 'CameraPage':
             return (
-                <CameraPage 
-                    setPage={setPage}
-                    setImageUri={setImageUri}
-                />
+                <CameraPage />
             )
         case 'ReviewPhoto':
             return (
-                <ReviewPhoto 
-                    setPage={setPage}
-                    imageUri={imageUri}
-                />
+                <ReviewPhoto />
+            )
+        case 'ViewInbox':
+            return (
+                <ViewInbox />
             )
         default:
             return (
-                <CameraPage 
-                    setPage={setPage}
-                    setImageUri={setImageUri}
-                />
+                <CameraPage />
             )
     }
 }

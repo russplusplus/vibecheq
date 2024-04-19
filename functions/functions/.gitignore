@@ -1,0 +1,4 @@
+node_modules/
+
+# Google Cloud Platform
+service-account.json

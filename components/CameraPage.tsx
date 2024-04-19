@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform, TextInput } from 'react-native'
+import { Alert, StyleSheet, View, TouchableOpacity, Text, Platform, TextInput, ActivityIndicator } from 'react-native'
 import { Styles, Colors } from '../lib/constants'
 // import { supabase } from '../lib/supabase'
 import { Camera, CameraType } from 'expo-camera';
@@ -7,31 +7,49 @@ import { Camera, CameraType } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import database from '@react-native-firebase/database'
 
 import Logout from './Logout'
 import LoadingModal from './LoadingModal'
 
-import { useUser } from './UserContext'
+import { useUser } from './ContainerContext'
 
-export default function CameraPage({
-  setPage,
-  setImageUri
-}) {
+async function getUserData(uid: string): Promise<any>  {
+  return new Promise(async (resolve, reject) => {
+    const ref = `users/${uid}`
+    // the auth trigger function takes a couple seconds to populate the new user data in the db, so we wait a couple seconds before querying it
+    // 4 seconds works so far, may be able to go lower
+    // UPDATE: this is not actually a problem. Not having the user data for a new user has no 
+    // apparent consequences, since their inbox will be empty anyway
+    // setTimeout function was eliminated
+    const snapshot = await database()
+        .ref(ref)
+        .once('value')
+    const user = snapshot.val()
+    console.log('in getUserData. snapshot.val():', user)
+    if (!user.data) {
+        console.log('user data not found')
+        reject('user data not found')
+    } else {
+        console.log('phoneNumber found, so setting user data')
+        resolve(user)
+    } 
+  })
+}
+
+export default function CameraPage() {
 
   const [type, setType] = useState(CameraType.back)
   const [logoutMode, setLogoutMode] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [isInboxLoading, setIsInboxLoading] = useState<boolean>(false)
   const cameraRef = useRef<Camera>(null)
 
   const [permission, requestPermission] = Camera.useCameraPermissions();
 
   const { user } = useUser()
 
-  console.log('in CameraPage. user:', user)
-  // if (permission?.status !== 'granted') {
-  //   requestPermission()
-  // }
-  
+  const [userData, setUserData] = useState<any | null>(null)
 
   function toggleCameraType() {
     console.log('in toggleCameraType')
@@ -47,6 +65,23 @@ export default function CameraPage({
     setPage('ReviewPhoto')
   }
 
+  async function init() {
+    if (!user) {
+      console.log('user not found')
+      return
+    }
+    const data = await getUserData(user.user.uid)
+    setUserData(data)
+  }
+
+  async function viewInbox() {
+    if (userData.inbox) {
+      setPage('ViewInbox')
+    } else {
+      setIsInboxLoading(true)
+    }
+  }
+
   useEffect(() => {
     console.log('logoutMode:', logoutMode)
   }, [logoutMode])
@@ -54,6 +89,14 @@ export default function CameraPage({
   useEffect(() => {
     console.log('rendered CameraPage')
   })
+
+  useEffect(() => {
+    console.log('userData:', userData)
+  }, [userData])
+
+  useEffect(() => {
+    init()
+  }, [])
 
   return (
 
@@ -97,7 +140,7 @@ export default function CameraPage({
             style={styles.bottomBottomButtons}>
             <TouchableOpacity
               style={styles.favorite}>
-              <AntDesign name="heart" size={30} color={Colors.white} />
+              <AntDesign name="heart" size={30} color={'transparent'} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={takePhoto}
@@ -105,9 +148,13 @@ export default function CameraPage({
             />
             <TouchableOpacity
               style={styles.inbox}>
-              <Text
-                style={styles.inboxText}
-              >0</Text>
+              {isInboxLoading
+                ? <ActivityIndicator size="small" color='black' />
+                : <Text
+                    style={styles.inboxText}
+                  >{userData?.data ? Object.keys(userData.data.inbox).length : 0}</Text>
+              }
+              {/* >0</Text> */}
             </TouchableOpacity>
           </View>
         </View>
@@ -164,7 +211,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
-    backgroundColor: Colors.blue,
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center'
   },
