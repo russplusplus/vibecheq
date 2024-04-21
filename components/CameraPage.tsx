@@ -12,7 +12,7 @@ import database from '@react-native-firebase/database'
 import Logout from './Logout'
 import LoadingModal from './LoadingModal'
 
-import { useUser } from './ContainerContext'
+import { useContainerContext } from './ContainerContext'
 
 async function getUserData(uid: string): Promise<any>  {
   return new Promise(async (resolve, reject) => {
@@ -45,11 +45,7 @@ export default function CameraPage() {
   const [isInboxLoading, setIsInboxLoading] = useState<boolean>(false)
   const cameraRef = useRef<Camera>(null)
 
-  const [permission, requestPermission] = Camera.useCameraPermissions();
-
-  const { user } = useUser()
-
-  const [userData, setUserData] = useState<any | null>(null)
+  const { user, setCapturedImageUri, setPage, userData, setUserData, respondingTo, setRespondingTo } = useContainerContext()
 
   function toggleCameraType() {
     console.log('in toggleCameraType')
@@ -60,7 +56,7 @@ export default function CameraPage() {
     setLoading(true)
     if (!cameraRef) return
     const photo = await cameraRef.current.takePictureAsync()
-    setImageUri(photo.uri)
+    setCapturedImageUri(photo.uri)
     setLoading(false)
     setPage('ReviewPhoto')
   }
@@ -75,7 +71,8 @@ export default function CameraPage() {
   }
 
   async function viewInbox() {
-    if (userData.inbox) {
+    console.log('in viewInbox. userData.data:', userData.data)
+    if (userData.data.inbox) {
       setPage('ViewInbox')
     } else {
       setIsInboxLoading(true)
@@ -137,25 +134,34 @@ export default function CameraPage() {
             </TouchableOpacity>
           </View>
           <View
-            style={styles.bottomBottomButtons}>
+            style={{...styles.bottomBottomButtons, justifyContent: respondingTo ? 'center' : 'space-between'}}>
+            {respondingTo ?
+            <></>
+            :
             <TouchableOpacity
               style={styles.favorite}>
               <AntDesign name="heart" size={30} color={'transparent'} />
             </TouchableOpacity>
+            }
+            
             <TouchableOpacity
               onPress={takePhoto}
               style={styles.takePhoto}
             />
+            {respondingTo ? 
+            <></>
+            :
             <TouchableOpacity
+              onPress={viewInbox}
               style={styles.inbox}>
               {isInboxLoading
                 ? <ActivityIndicator size="small" color='black' />
                 : <Text
                     style={styles.inboxText}
-                  >{userData?.data ? Object.keys(userData.data.inbox).length : 0}</Text>
+                  >{userData?.data?.inbox ? Object.keys(userData.data.inbox).length : 0}</Text>
               }
-              {/* >0</Text> */}
             </TouchableOpacity>
+            }
           </View>
         </View>
       </Camera>

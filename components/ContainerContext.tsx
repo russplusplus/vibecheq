@@ -20,7 +20,9 @@ type ContainerContext = {
     page: string, 
     setPage: React.Dispatch<React.SetStateAction<string>>,
     capturedImageUri: string,
-    setCapturedImageUri: React.Dispatch<React.SetStateAction<string>>
+    setCapturedImageUri: React.Dispatch<React.SetStateAction<string>>,
+    respondingTo: string,
+    setRespondingTo: React.Dispatch<React.SetStateAction<string>>
 }
 
 // initial value provided here is what you get if you try to consume context outside of the provider
@@ -31,6 +33,7 @@ export const ContainerContextProvider = (props: any) => {
     const [userData, setUserData] = useState<UserData | null>(null)
     const [page, setPage] = useState<string>('CameraPage')
     const [capturedImageUri, setCapturedImageUri] = useState<string>('')
+    const [respondingTo, setRespondingTo] = useState<string>('')
 
     const value = {
         user,
@@ -40,7 +43,9 @@ export const ContainerContextProvider = (props: any) => {
         page,
         setPage,
         capturedImageUri,
-        setCapturedImageUri
+        setCapturedImageUri,
+        respondingTo,
+        setRespondingTo
     }
 
     return <ContainerContext.Provider value={value} {...props}/>

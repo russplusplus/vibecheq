@@ -2,7 +2,7 @@
 import { Modal, View, TouchableOpacity, Text, Alert, StyleSheet } from 'react-native'
 // import { supabase } from '../lib/supabase'
 import { Styles, Colors } from '../lib/constants'
-import { useUser } from './ContainerContext'
+import { useContainerContext } from './ContainerContext'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
@@ -10,7 +10,7 @@ export default function Logout({
     logoutMode,
     setLogoutMode
 }) {
-    const { user, setUser } = useUser()
+    const { user, setUser } = useContainerContext()
 
     async function signOut() {
         await AsyncStorage.removeItem('user')

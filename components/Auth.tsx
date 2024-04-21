@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 import auth from '@react-native-firebase/auth';
-import { useUser } from './ContainerContext'
+import { useContainerContext } from './ContainerContext'
 
 export default function Auth() {
   const [phoneNumber, setPhoneNumber] = useState<string>('')
@@ -17,7 +17,7 @@ export default function Auth() {
   const [error, setError] = useState<string>('')
   const [confirm, setConfirm] = useState<any>(null)
 
-  const { user, setUser } = useUser()
+  const { user, setUser } = useContainerContext()
 
   async function sendOtp() {
     setLoading(true)
