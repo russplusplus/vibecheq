@@ -32,7 +32,6 @@
       "package": "com.vibecheque"
     },
     "androidStatusBar": {
-      "backgroundColor": "black",
       "translucent": "false"
     },
     "web": {

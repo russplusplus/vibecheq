@@ -40,7 +40,7 @@ async function uploadPhoto(uri: string, userUid: string, recipient: string) {
 
 export default function ReviewPhoto(): React.JSX.Element {
     const [loading, setLoading] = useState<boolean>(false)
-    const { user, setUser, capturedImageUri, setPage } = useContainerContext()
+    const { user, capturedImageUri, setPage, respondingTo, setRespondingTo } = useContainerContext()
 
     async function sendPhoto() {
         setLoading(true)
@@ -51,6 +51,7 @@ export default function ReviewPhoto(): React.JSX.Element {
         console.log('storageData:', storageData)
         // await handlePhotoUpload(storageData.path)
 
+        setRespondingTo(null)
         setLoading(false)
         setPage('CameraPage')
     }
