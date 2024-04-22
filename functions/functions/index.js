@@ -66,7 +66,8 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
 
     // add entry to database
     console.log('recipientUid:', recipientUid)
-    console.log('senderUid:', senderUid) 
+    console.log('senderUid:', senderUid)
+    let data = 
     admin
       .database()
       .ref(`users/${recipientUid}/data/inbox/${filename}`)
@@ -75,7 +76,9 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
         to: recipientUid,
         isResponse: isResponse,
         url: url,
-        didTheyFavorite: object.metadata.didTheyFavorite
+        didTheyFavorite: object.metadata.didTheyFavorite,
+        respondingToImageName: object.metadata.respondingToImageName,
+        respondingToImageUrl: object.metadata.respondingToImageUrl
       })
 
     // // update vibe record of sender to indicate they successfully sent a vibe and are therefore not banned
