@@ -7,35 +7,13 @@ import { Camera, CameraType } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
-import database from '@react-native-firebase/database'
 
 import Logout from './Logout'
 import LoadingModal from './LoadingModal'
 
 import { useContainerContext } from './ContainerContext'
 
-async function getUserData(uid: string): Promise<any>  {
-  return new Promise(async (resolve, reject) => {
-    const ref = `users/${uid}`
-    // the auth trigger function takes a couple seconds to populate the new user data in the db, so we wait a couple seconds before querying it
-    // 4 seconds works so far, may be able to go lower
-    // UPDATE: this is not actually a problem. Not having the user data for a new user has no 
-    // apparent consequences, since their inbox will be empty anyway
-    // setTimeout function was eliminated
-    const snapshot = await database()
-        .ref(ref)
-        .once('value')
-    const user = snapshot.val()
-    console.log('in getUserData. snapshot.val():', user)
-    if (!user?.data) {
-        console.log('user data not found')
-        reject('user data not found')
-    } else {
-        console.log('phoneNumber found, so setting user data')
-        resolve(user)
-    } 
-  })
-}
+import { getUserData } from '../lib/utils'
 
 export default function CameraPage() {
 
@@ -47,10 +25,10 @@ export default function CameraPage() {
 
   const { user, setCapturedImageUri, setPage, userData, setUserData, respondingTo, setRespondingTo } = useContainerContext()
 
-  const [permission, requestPermission] = Camera.useCameraPermissions()
+  const [cameraPermission, requestCameraPermission] = Camera.useCameraPermissions()
 
-  if (!permission?.granted) {
-    requestPermission()
+  if (!cameraPermission?.granted) {
+    requestCameraPermission()
   }
 
   function toggleCameraType() {

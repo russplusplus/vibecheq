@@ -67,7 +67,6 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
     // add entry to database
     console.log('recipientUid:', recipientUid)
     console.log('senderUid:', senderUid)
-    let data = 
     admin
       .database()
       .ref(`users/${recipientUid}/data/inbox/${filename}`)
@@ -98,10 +97,11 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
         body: 'Open Vibecheque to view it',
         imageUrl: 'https://my-cdn.com/app-logo.png',
       },
+      token: recipientToken
     }
     admin
       .messaging()
-      .sendToDevice(recipientToken, payload)
+      .send(payload)
       .then(function(response) {
         console.log("Successfully sent message:", response);
       })
@@ -120,7 +120,7 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
     let users = snapshot.val()
     console.log('snapshot:', users)
     let uidArr = []
-    for (user in users) {
+    for (let user in users) {
       //console.log('user:', user)
       if (users[user].data.unbanTime < new Date().getTime() && user != senderUid) {   // add [if in geographic radius...]
         console.log('user', user, 'is a suitable recipient')
@@ -181,10 +181,12 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
         body: 'Open Vibecheque to view it.',
         imageUrl: 'https://my-cdn.com/app-logo.png',
       },
+      token: recipientToken
     }
+
     admin
       .messaging()
-      .sendToDevice(recipientToken, payload)
+      .send(payload)
       .then(function(response) {
         console.log("Successfully sent message:", response);
       })

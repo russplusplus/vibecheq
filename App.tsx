@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Platform } from 'react-native';
 import { ContainerContextProvider, useContainerContext } from './components/ContainerContext'
@@ -6,9 +6,16 @@ import PageRouter from './components/PageRouter'
 import Auth from './components/Auth'
 import { Styles, Colors } from './lib/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
+import * as Notifications from 'expo-notifications'
+import { getUserData } from './lib/utils'
+
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+});
 
 const Container = () => {
-  const { user, setUser } = useContainerContext()
+  const { user, setUser, setUserData } = useContainerContext()
 
   async function checkIfLoggedIn() {
     console.log('in checkIfLoggedIn')
@@ -29,6 +36,17 @@ const Container = () => {
   useEffect(() => {
     checkIfLoggedIn()
   }, [])  
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('Received FCM ', remoteMessage)
+      console.log('user:', user)
+      const data = await getUserData(user.user.uid)
+      setUserData(data)
+    });
+    return unsubscribe;
+  }, []);
+  
   
   console.log('in App.tsx. user:', user)
   return user ? <PageRouter /> : <Auth />

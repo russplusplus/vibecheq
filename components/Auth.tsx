@@ -6,6 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import PhoneInput, { ICountry } from 'react-native-international-phone-number'
 import auth from '@react-native-firebase/auth';
+import messaging from '@react-native-firebase/messaging';
+import database from '@react-native-firebase/database';
+
 import { useContainerContext } from './ContainerContext'
 
 export default function Auth() {
@@ -18,6 +21,16 @@ export default function Auth() {
   const [confirm, setConfirm] = useState<any>(null)
 
   const { user, setUser } = useContainerContext()
+
+  async function updateRegistrationToken(uid) {
+    const registrationToken = await messaging().getToken()
+    console.log('registrationToken:', registrationToken)
+    await database()
+      .ref(`/users/${uid}`)
+      .update({
+        registrationToken
+      })
+  }
 
   async function sendOtp() {
     setLoading(true)
@@ -48,16 +61,11 @@ export default function Auth() {
 
   async function verifyOtp() {
     setLoading(true)
-    // const { data: { session }, error } = await supabase.auth.verifyOtp({
-    //   phone: selectedCountry?.callingCode + phone,
-    //   token: password,
-    //   type: 'sms'
-    // })
-
+   
     const user = await confirm.confirm(password)
     const { uid } = user.user
     console.log('code is valid! user:', user)
-    //updateRegistrationToken(uid)
+    updateRegistrationToken(uid)
     setUser(user)
     await AsyncStorage.setItem("user", JSON.stringify(user))
 
