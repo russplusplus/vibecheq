@@ -35,7 +35,6 @@ async function uploadPhoto(uri: string, userUid: string, recipient: string, resp
         customMetadata: {
           fromUid: userUid,
           toUid: recipient,
-          didTheyFavorite: "false",
           respondingToImageName: respondingToImageName,
           respondingToImageUrl: respondingToImageUrl
         },
