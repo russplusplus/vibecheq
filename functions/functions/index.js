@@ -1,8 +1,16 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp();
-const {Storage} = require('@google-cloud/storage');
+// const { getDownloadURL } = require('firebase-admin/storage')
+const { Storage } = require('@google-cloud/storage');
 const gcs = new Storage({keyFilename: './service-account.json'});
+const { modelUrl, modelWeightUrls } = require('./constants')
+const pdjs = require('private-detector-js')
+
+admin.initializeApp();
+
+async function getWeightUrls(shardName) {
+  return modelWeightUrls[shardName]
+}
 
 exports.addUser = functions.auth.user().onCreate(user => {
   console.log('user:', user)
@@ -37,9 +45,9 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
 
   // generate signed URL for uploaded image
   const bucket = gcs.bucket("vibecheque-543ff.appspot.com");
-  console.log('bucket:', bucket)
+  // console.log('bucket:', bucket)
   const file = bucket.file(object.name);
-  console.log('file:', file)
+  // console.log('file:', file)
   const urlArr = await file.getSignedUrl({
     action: 'read',
     expires: '03-09-2491'
@@ -47,7 +55,44 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
   const url = urlArr[0]
   console.log('url:', url)
 
+  // // created signedUrls for each shard file
+  // let weightUrls = {}
+  // for (let i = 1; i <= 51; i++) {
+  //   const shardFile = bucket.file(`model/group1-shard${i}of51.bin`)
+  //   const shardUrlArr = await shardFile.getSignedUrl({
+  //     action: 'read',
+  //     expires: '03-09-2491'
+  //   })
+  //   const shardUrl = shardUrlArr[0]
+  //   // console.log(`shard ${i} url:`, shardUrl)
+  //   weightUrls[`group1-shard${i}of51.bin`] = shardUrl
+  // }
+  // console.log('weightUrls:', weightUrls)
 
+  // run model on image
+
+  // const modelRef = bucket.file('model/model.json');
+  // console.log('modelRef:', modelRef)
+  // const modelDownloadUrl = await getDownloadURL(modelRef)
+  // console.log('modelDownloadUrl:', modelDownloadUrl)
+
+  const options = {
+    weightUrlConverter: getWeightUrls
+  }
+
+  const filePaths = [
+    url
+  ]
+
+  const probs = await pdjs.RunInference(modelUrl, filePaths, options)
+  console.log('probs:', probs)
+
+
+
+
+
+
+  // generate random recipient if image is not a response
   const isResponse = object.metadata.toUid ? true : false
 
   if (isResponse) {
@@ -97,6 +142,7 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
     })
 
   // send FCM
+  // make db call here instead, because the users object isn't in scope anymore, and we don't want to create the users object anyway.
   let recipientToken = users[recipientUid].registrationToken
   console.log('response block recipientToken:', recipientToken)
   let payload = {

@@ -14,7 +14,8 @@
   "dependencies": {
     "@google-cloud/storage": "^7.10.0",
     "firebase-admin": "^12.1.0",
-    "firebase-functions": "^4.9.0"
+    "firebase-functions": "^4.9.0",
+    "private-detector-js": "^0.0.16"
   },
   "devDependencies": {
     "firebase-functions-test": "^0.2.0"
