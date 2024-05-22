@@ -1,6 +1,10 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-// const { getDownloadURL } = require('firebase-admin/storage')
+
+// This package (@google-cloud/storage) must be used instead of
+// firebase-admin for storage, because it can create signed URLs
+// that never expire. The firebase-admin sdk can only create 
+// signed URLs that last up to a week.
 const { Storage } = require('@google-cloud/storage');
 const gcs = new Storage({keyFilename: './service-account.json'});
 const { modelUrl, modelWeightUrls } = require('./constants')
