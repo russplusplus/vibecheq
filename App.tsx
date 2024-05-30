@@ -39,7 +39,7 @@ const Container = () => {
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('Received FCM ', remoteMessage)
+      console.log('Received FCM:', remoteMessage)
       console.log('user:', user)
       const data = await getUserData(user.user.uid)
       setUserData(data)
@@ -65,7 +65,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: Colors.black,
     alignItems: 'center',
     justifyContent: 'center',
   },

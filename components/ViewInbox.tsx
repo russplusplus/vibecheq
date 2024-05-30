@@ -19,20 +19,23 @@ export default function ViewInbox() {
     console.log("in handlePressAnywhere");
     // don't delete from database or storage yet if the user will be responding,
     // because we need the first inbox image to show in CameraPage and ReviewPhoto.
-    if (!respondingTo) {
-      // delete from database
-      const { uid } = user.user;
-      const inboxImageName = Object.keys(userData.inbox)[0];
-      console.log('uid:', uid)
-      console.log('inboxImageName:', inboxImageName)
-      await database().ref(`userData/${uid}/inbox/${inboxImageName}`).remove();
-      // delete from storage
-      const respondingToImageName = userData.inbox[inboxImageName].respondingToImageName
-      await storage().ref(`images/${inboxImageName}`).delete()
-      await storage().ref(`images/${respondingToImageName}`).delete()
-
+    if (respondingTo) {
+      setPage('CameraPage')
+      return
     }
-    setPage("CameraPage");
+    // delete from database
+    const { uid } = user.user;
+    const inboxImageName = Object.keys(userData.inbox)[0];
+    console.log('uid:', uid)
+    console.log('inboxImageName:', inboxImageName)
+    await database().ref(`userData/${uid}/inbox/${inboxImageName}`).remove();
+
+    // delete from storage
+    const { respondingToImageName } = userData.inbox[inboxImageName]
+    await storage().ref(`images/${inboxImageName}`).delete()
+    await storage().ref(`images/${respondingToImageName}`).delete()
+    
+    setPage('CameraPage');
   }
 
   useEffect(() => {
