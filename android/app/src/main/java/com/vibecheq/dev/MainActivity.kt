@@ -1,4 +1,4 @@
-package com.vibecheque
+package com.vibecheq.dev
 
 import android.os.Build
 import android.os.Bundle

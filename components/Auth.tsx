@@ -22,14 +22,19 @@ export default function Auth() {
 
   const { user, setUser } = useContainerContext()
 
-  async function updateRegistrationToken(uid) {
-    const registrationToken = await messaging().getToken()
+  async function updateRegistrationToken(uid: string) {
+    const registrationToken: string = await messaging().getToken()
     console.log('registrationToken:', registrationToken)
-    await database()
-      .ref(`/users/${uid}`)
+    try {
+      await database()
+      .ref(`registrationTokens/${uid}`)
       .update({
         registrationToken
       })
+    } catch (err) {
+      console.log(err)
+    }
+    
   }
 
   async function sendOtp() {

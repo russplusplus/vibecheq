@@ -17,7 +17,7 @@
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
-      "bundleIdentifier": "org.reactjs.native.example.Vibecheque"
+      "bundleIdentifier": "com.vibecheq.dev"
     },
     "android": {
       "googleServicesFile": "google-services.json",
@@ -29,7 +29,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.vibecheque"
+      "package": "com.vibecheq.dev"
     },
     "androidStatusBar": {
       "translucent": "false"

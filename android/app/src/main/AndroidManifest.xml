@@ -27,7 +27,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.vibecheque"/>
+        <data android:scheme="com.vibecheq.dev"/>
         <data android:scheme="exp+vibecheq"/>
       </intent-filter>
     </activity>

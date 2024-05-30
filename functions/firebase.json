@@ -1,1 +1,7 @@
-{}
+{
+    "hosting": {
+        "frameworksBackend": {
+            "memory": "512MiB"
+        }
+    }
+}

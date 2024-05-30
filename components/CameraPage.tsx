@@ -55,7 +55,7 @@ export default function CameraPage() {
   }
 
   async function viewInbox() {
-    if (userData.data.inbox) {
+    if (userData.inbox) {
       setPage('ViewInbox')
     } else {
       setIsInboxLoading(true)
@@ -110,7 +110,7 @@ export default function CameraPage() {
             style={{...styles.bottomBottomButtons, justifyContent: respondingTo ? 'center' : 'space-between'}}>
             {respondingTo ?
             <Image
-              source={{ uri: userData.data.inbox[Object.keys(userData.data.inbox)[0]].url }}
+              source={{ uri: userData.inbox[Object.keys(userData.inbox)[0]].url }}
               style={styles.image}
             />
             :
@@ -134,7 +134,7 @@ export default function CameraPage() {
                 ? <ActivityIndicator size="small" color='black' />
                 : <Text
                     style={styles.inboxText}
-                  >{userData?.data?.inbox ? Object.keys(userData.data.inbox).length : 0}</Text>
+                  >{userData?.inbox ? Object.keys(userData.inbox).length : 0}</Text>
               }
             </TouchableOpacity>
             }

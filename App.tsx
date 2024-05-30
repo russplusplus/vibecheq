@@ -47,7 +47,6 @@ const Container = () => {
     return unsubscribe;
   }, []);
   
-  
   console.log('in App.tsx. user:', user)
   return user ? <PageRouter /> : <Auth />
 }

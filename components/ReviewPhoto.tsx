@@ -24,8 +24,6 @@ async function uploadPhoto(uri: string, userUid: string, recipient: string, resp
     console.log('respondingToImageName:', respondingToImageName)
     console.log('respondingToImageUrl:', respondingToImageUrl)
 
-    const arrayBuffer = await fetch(uri).then((res) => res.arrayBuffer());
-
     try {
       let filename = new Date().getTime();
       const refName = "images/" + String(filename);
@@ -64,8 +62,8 @@ export default function ReviewPhoto(): React.JSX.Element {
   async function sendPhoto() {
     setLoading(true);
     console.log("sending photo");
-    let inboxImageName = respondingTo ? Object.keys(userData.data.inbox)[0] : ''
-    let inboxImageUrl = respondingTo ? userData.data.inbox[Object.keys(userData.data.inbox)[0]].url : ''
+    let inboxImageName = respondingTo ? Object.keys(userData.inbox)[0] : ''
+    let inboxImageUrl = respondingTo ? userData.inbox[Object.keys(userData.inbox)[0]].url : ''
     // "as StorageData" is a type assertion
     const storageData = await uploadPhoto(
       capturedImageUri,
@@ -80,10 +78,10 @@ export default function ReviewPhoto(): React.JSX.Element {
     if (respondingTo) {
       // delete from database
       const { uid } = user.user;
-      const toBeDeleted = Object.keys(userData.data.inbox)[0];
+      const toBeDeleted = Object.keys(userData.inbox)[0];
       console.log('uid:', uid)
       console.log('toBeDeleted:', toBeDeleted)
-      await database().ref(`users/${uid}/data/inbox/${toBeDeleted}`).remove();  
+      await database().ref(`userData/${uid}/inbox/${toBeDeleted}`).remove();  
     }
 
 
@@ -102,7 +100,7 @@ export default function ReviewPhoto(): React.JSX.Element {
         {respondingTo ? (
           <Image
             source={{
-              uri: userData.data.inbox[Object.keys(userData.data.inbox)[0]].url,
+              uri: userData.inbox[Object.keys(userData.inbox)[0]].url,
             }}
             style={styles.image}
           />

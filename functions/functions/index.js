@@ -12,150 +12,157 @@ const pdjs = require('private-detector-js')
 
 admin.initializeApp();
 
-async function getWeightUrls(shardName) {
-  return modelWeightUrls[shardName]
-}
-
 exports.addUser = functions.auth.user().onCreate(user => {
   console.log('user:', user)
   admin
   .database()
-  .ref(`users/${user.uid}/data`)
+  .ref(`userData/${user.uid}`)
   .set({
-    unbanTime: 0,
-    email: user.email,
     phoneNumber: user.phoneNumber,
     settings: {
       leftHandedMode: false
-    },
-    vibeRecord: {
-      strikes: 0,
-      lastVibeReported: 0,
-      firstVibe: 1,
-      numberOfTimesBanned: 0
-    },
+    }
   });
 });
 
-exports.addImage = functions.storage.object('/images').onFinalize(async (object) => {
-  console.log('in add image function. storage object:', object)
+const runtimeOpts = {
+  timeoutSeconds: 300,
+  memory: '2GB'
+}
 
-  // Sender UID and isResponding are attached as metadata to storage object
+exports.addImage = functions.runWith(runtimeOpts).storage.object('/images').onFinalize(async (object) => {
+  console.log('in addImage function')
+
+  // The sender's UID (fromUid) and isResponding are attached as metadata to storage object
   console.log('object.metadata.fromUid:', object.metadata.fromUid)
-  let senderUid = object.metadata.fromUid
+  const senderUid = object.metadata.fromUid
 
-  // 'images/xxxxxxx' => 'xxxxxxx'
-  let filename = object.name.substring(7)
+  const imageUrl = await createSignedUrl(object.name)
+  console.log('imageUrl:', imageUrl)
 
-  // generate signed URL for uploaded image
-  const bucket = gcs.bucket("vibecheque-543ff.appspot.com");
+  if (await isImageExplicit(imageUrl)) {
+    console.log('image is explicit')
+    // TO DO
+    // delete image if in production
+    // log to database
+    return
+  }
+
+  console.log('image is not explicit. Determining recipient...')
+
+  const allUsersSnapshot = await admin.database().ref('registrationTokens').once('value')
+  const allUsers = await allUsersSnapshot.val()
+
+  console.log('object.metadata.toUid:', object.metadata.toUid)
+  const isResponse = object.metadata.toUid ? true : false
+  console.log('isResponse:', isResponse)
+  const recipientUid = object.metadata.toUid ?? determineRecipientUid(allUsers, senderUid)
+  console.log('recipientUid:', recipientUid)
+  console.log('senderUid:', senderUid)
+
+  const imageData = {
+    from: senderUid,
+    to: recipientUid, // is this necessary?
+    isResponse: isResponse,
+    url: imageUrl,
+    respondingToImageName: object.metadata.respondingToImageName || null,
+    respondingToImageUrl: object.metadata.respondingToImageUrl || null
+  }
+
+  await addDatabaseEntry(object.name.substring(7), imageData)
+  
+  await sendNotification(allUsers[recipientUid].registrationToken, isResponse)
+});
+
+
+
+async function createSignedUrl(filename) {
+  const bucket = gcs.bucket("vibecheq-dev-d930b.appspot.com");
   // console.log('bucket:', bucket)
-  const file = bucket.file(object.name);
+  const file = bucket.file(filename);
   // console.log('file:', file)
   const urlArr = await file.getSignedUrl({
     action: 'read',
     expires: '03-09-2491'
   })
   const url = urlArr[0]
-  console.log('url:', url)
+  return url
+}
 
-  // // created signedUrls for each shard file
-  // let weightUrls = {}
-  // for (let i = 1; i <= 51; i++) {
-  //   const shardFile = bucket.file(`model/group1-shard${i}of51.bin`)
-  //   const shardUrlArr = await shardFile.getSignedUrl({
-  //     action: 'read',
-  //     expires: '03-09-2491'
-  //   })
-  //   const shardUrl = shardUrlArr[0]
-  //   // console.log(`shard ${i} url:`, shardUrl)
-  //   weightUrls[`group1-shard${i}of51.bin`] = shardUrl
-  // }
-  // console.log('weightUrls:', weightUrls)
+// remove async
+async function getWeightUrls(shardName) {
+  return modelWeightUrls[shardName]
+}
 
-  // run model on image
-
-  // const modelRef = bucket.file('model/model.json');
-  // console.log('modelRef:', modelRef)
-  // const modelDownloadUrl = await getDownloadURL(modelRef)
-  // console.log('modelDownloadUrl:', modelDownloadUrl)
-
+async function isImageExplicit(imageUrl) {
   const options = {
     weightUrlConverter: getWeightUrls
   }
 
   const filePaths = [
-    url
+    imageUrl
   ]
 
   const probs = await pdjs.RunInference(modelUrl, filePaths, options)
   console.log('probs:', probs)
+  return (probs[0] > 0.1)
+}
 
-
-
-
-
-
-  // generate random recipient if image is not a response
-  const isResponse = object.metadata.toUid ? true : false
-
-  if (isResponse) {
-    console.log('vibe has recipient metadata and therefore is a response. toUid:', object.metadata.toUid)
-  } else {
-    console.log('vibe does not have recipient metadata and therefore is not a response')
-  }
-
-  const randomRecipientUid = async () => {
-    let snapshot = await admin  
-      .database()
-      .ref('users')
-      .once('value')
-    let users = snapshot.val()
-    console.log('snapshot:', users)
-    let uidArr = []
-    for (let user in users) {
-      if (user != senderUid) {
-        console.log('user', user, 'is a suitable recipient')
-        uidArr.push(user)
-      } else {
-        console.log('user', user, 'is NOT a suitable recipient')
-      }
+function determineRecipientUid(allUsers, senderUid) {
+  console.log('no recipient UID found in metadata. Randomly assigning recipient...')
+  console.log('allUsers:', allUsers)
+  let uidArr = []
+  for (let user in allUsers) {
+    if (user != senderUid) {
+      console.log('user', user, 'is a suitable recipient')
+      uidArr.push(user)
+    } else {
+      console.log('user', user, 'is NOT a suitable recipient')
     }
-    console.log('uidArr:', uidArr)
-    console.log('senderUid:', senderUid)
-    const recipientUid = uidArr[Math.floor(Math.random() * uidArr.length)]
-    console.log('recipientUid:', recipientUid)
-    return recipientUid
   }
-
-  let recipientUid = isResponse ? object.metadata.toUid : await randomRecipientUid()
-  
-  // add entry to database
-  console.log('recipientUid:', recipientUid)
+  console.log('uidArr:', uidArr)
   console.log('senderUid:', senderUid)
+  const recipientUid = uidArr[Math.floor(Math.random() * uidArr.length)]
+  console.log('recipientUid:', recipientUid)
+  return recipientUid
+}
+
+async function createModelWeightSignedUrls(numberOfShards) {
+  // created signedUrls for each shard file
+  let weightUrls = {}
+  for (let i = 1; i <= numberOfShards; i++) {
+    const shardFile = bucket.file(`model/group1-shard${i}of${numberOfShards}.bin`)
+    const shardUrlArr = await shardFile.getSignedUrl({
+      action: 'read',
+      expires: '03-09-2491'
+    })
+    const shardUrl = shardUrlArr[0]
+    weightUrls[`group1-shard${i}of${numberOfShards}.bin`] = shardUrl
+  }
+  console.log('weightUrls:', weightUrls)
+}
+
+async function addDatabaseEntry(imageFilename, imageData) {
+  console.log('in addDatabaseEntry. imageData:', imageData)
+
+  console.log('recipientUid:', imageData.to)
+  console.log('senderUid:', imageData.from)
   admin
     .database()
-    .ref(`users/${recipientUid}/data/inbox/${filename}`)
-    .set({
-      from: senderUid,
-      to: recipientUid, // is this necessary?
-      isResponse: isResponse,
-      url: url,
-      respondingToImageName: object.metadata.respondingToImageName || null,
-      respondingToImageUrl: object.metadata.respondingToImageUrl || null
-    })
+    .ref(`userData/${imageData.to}/inbox/${imageFilename}`)
+    .set(imageData)
+}
 
+async function sendNotification(recipientRegistrationToken, isResponse) {
   // send FCM
-  // make db call here instead, because the users object isn't in scope anymore, and we don't want to create the users object anyway.
-  let recipientToken = users[recipientUid].registrationToken
-  console.log('response block recipientToken:', recipientToken)
+  console.log('response block recipientToken:', recipientRegistrationToken)
   let payload = {
     notification: {
       title: isResponse ? 'New response!' : 'New Vibe!',
       body: 'Open Vibecheq to view it',
       imageUrl: 'https://my-cdn.com/app-logo.png',
     },
-    token: recipientToken
+    token: recipientRegistrationToken
   }
   admin
     .messaging()
@@ -166,4 +173,4 @@ exports.addImage = functions.storage.object('/images').onFinalize(async (object)
     .catch(function(error) {
       console.log("Error sending message:", error);
   });
-});
+}

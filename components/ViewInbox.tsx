@@ -1,22 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Alert,
   StyleSheet,
   View,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  Text,
-  Platform,
-  TextInput,
-  ActivityIndicator,
   ImageBackground,
   Image
 } from "react-native";
 import database from "@react-native-firebase/database";
 import storage from "@react-native-firebase/storage";
-
 import LoadingModal from "./LoadingModal";
-
 import { useContainerContext } from "./ContainerContext";
 
 export default function ViewInbox() {
@@ -30,12 +22,12 @@ export default function ViewInbox() {
     if (!respondingTo) {
       // delete from database
       const { uid } = user.user;
-      const inboxImageName = Object.keys(userData.data.inbox)[0];
+      const inboxImageName = Object.keys(userData.inbox)[0];
       console.log('uid:', uid)
       console.log('inboxImageName:', inboxImageName)
-      await database().ref(`users/${uid}/data/inbox/${inboxImageName}`).remove();
+      await database().ref(`userData/${uid}/inbox/${inboxImageName}`).remove();
       // delete from storage
-      const respondingToImageName = userData.data.inbox[inboxImageName].respondingToImageName
+      const respondingToImageName = userData.inbox[inboxImageName].respondingToImageName
       await storage().ref(`images/${inboxImageName}`).delete()
       await storage().ref(`images/${respondingToImageName}`).delete()
 
@@ -44,11 +36,11 @@ export default function ViewInbox() {
   }
 
   useEffect(() => {
-    if (userData.data.inbox[Object.keys(userData.data.inbox)[0]].isResponse) {
+    if (userData.inbox[Object.keys(userData.inbox)[0]].isResponse) {
       setRespondingTo(null);
     } else {
       setRespondingTo(
-        userData.data.inbox[Object.keys(userData.data.inbox)[0]].from
+        userData.inbox[Object.keys(userData.inbox)[0]].from
       );
     }
   }, []);
@@ -61,12 +53,12 @@ export default function ViewInbox() {
         <ImageBackground
           style={styles.background}
           source={{
-            uri: userData.data.inbox[Object.keys(userData.data.inbox)[0]].url,
+            uri: userData.inbox[Object.keys(userData.inbox)[0]].url,
           }}
         >
-          {userData.data.inbox[Object.keys(userData.data.inbox)[0]].isResponse ?
+          {userData.inbox[Object.keys(userData.inbox)[0]].isResponse ?
             <Image
-              source={{ uri: userData.data.inbox[Object.keys(userData.data.inbox)[0]].respondingToImageUrl }}
+              source={{ uri: userData.inbox[Object.keys(userData.inbox)[0]].respondingToImageUrl }}
               style={styles.image}
             />
             :

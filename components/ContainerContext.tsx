@@ -1,15 +1,12 @@
 import React, { useEffect, useState, createContext, useContext } from 'react'
 
 type UserData = {
-    data: {
-        favorite?: any,
-        phoneNumber: string,
-        inbox: any,
-        settings: any,
-        unbanTime?: number,
-        vibeRecord?: any
-    },
-    registrationToken: string
+    favorite?: any,
+    phoneNumber: string,
+    inbox: any,
+    settings: any,
+    unbanTime?: number,
+    vibeRecord?: any
 }
 
 type ContainerContext = {
